@@ -8,35 +8,60 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Ancient Greek marble and gold palette */
+    --background: 40 25% 96%;
+    --foreground: 30 45% 20%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 40 30% 98%;
+    --card-foreground: 30 45% 20%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 40 30% 98%;
+    --popover-foreground: 30 45% 20%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Gold accent - primary brand color */
+    --primary: 43 88% 55%;
+    --primary-foreground: 30 45% 15%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Bronze secondary */
+    --secondary: 30 35% 45%;
+    --secondary-foreground: 40 30% 98%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Warm muted tones */
+    --muted: 40 20% 90%;
+    --muted-foreground: 30 25% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent gold highlight */
+    --accent: 45 95% 60%;
+    --accent-foreground: 30 45% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 40 30% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 40 20% 85%;
+    --input: 40 20% 88%;
+    --ring: 43 88% 55%;
 
-    --radius: 0.5rem;
+    --radius: 0.25rem;
+    
+    /* Custom Greek theme variables */
+    --gold: 43 88% 55%;
+    --gold-dark: 38 75% 45%;
+    --bronze: 30 35% 45%;
+    --bronze-dark: 25 40% 30%;
+    --marble: 40 25% 96%;
+    --marble-dark: 40 20% 92%;
+    --slate: 200 15% 20%;
+    
+    /* Gradients */
+    --gradient-gold: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(var(--gold-dark)) 100%);
+    --gradient-bronze: linear-gradient(135deg, hsl(var(--bronze)) 0%, hsl(var(--bronze-dark)) 100%);
+    
+    /* Shadows */
+    --shadow-gold: 0 8px 32px hsl(var(--gold) / 0.25);
+    --shadow-elevation: 0 4px 16px hsl(var(--slate) / 0.1);
+    
+    /* Greek key pattern */
+    --greek-key-size: 20px;
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +126,65 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Crimson Text', serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+  }
+}
+
+@layer utilities {
+  .greek-key-border {
+    border-image: repeating-linear-gradient(
+      90deg,
+      hsl(var(--gold)) 0px,
+      hsl(var(--gold)) 3px,
+      transparent 3px,
+      transparent 6px,
+      hsl(var(--gold)) 6px,
+      hsl(var(--gold)) 9px,
+      transparent 9px,
+      transparent 20px
+    ) 1;
+  }
+  
+  .greek-key-top {
+    border-top: 3px solid;
+    @apply greek-key-border;
+  }
+  
+  .greek-key-bottom {
+    border-bottom: 3px solid;
+    @apply greek-key-border;
+  }
+  
+  .marble-texture {
+    background-image: 
+      radial-gradient(circle at 20% 50%, hsl(var(--marble-dark)) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(var(--marble-dark)) 0%, transparent 50%),
+      radial-gradient(circle at 40% 20%, hsl(var(--marble)) 0%, transparent 50%);
+    background-size: 200% 200%, 150% 150%, 180% 180%;
+  }
+  
+  .text-gold {
+    color: hsl(var(--gold));
+  }
+  
+  .text-bronze {
+    color: hsl(var(--bronze));
+  }
+  
+  .bg-gold {
+    background: hsl(var(--gold));
+  }
+  
+  .bg-gradient-gold {
+    background: var(--gradient-gold);
+  }
+  
+  .bg-gradient-bronze {
+    background: var(--gradient-bronze);
   }
 }
