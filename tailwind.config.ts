@@ -47,6 +47,19 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        gold: {
+          DEFAULT: "hsl(var(--gold))",
+          dark: "hsl(var(--gold-dark))",
+        },
+        bronze: {
+          DEFAULT: "hsl(var(--bronze))",
+          dark: "hsl(var(--bronze-dark))",
+        },
+        marble: {
+          DEFAULT: "hsl(var(--marble))",
+          dark: "hsl(var(--marble-dark))",
+        },
+        slate: "hsl(var(--slate))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -62,6 +75,18 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        cinzel: ['Cinzel', 'serif'],
+        crimson: ['Crimson Text', 'serif'],
+      },
+      backgroundImage: {
+        'gradient-gold': 'var(--gradient-gold)',
+        'gradient-bronze': 'var(--gradient-bronze)',
+      },
+      boxShadow: {
+        'gold': 'var(--shadow-gold)',
+        'elevation': 'var(--shadow-elevation)',
       },
       keyframes: {
         "accordion-down": {
