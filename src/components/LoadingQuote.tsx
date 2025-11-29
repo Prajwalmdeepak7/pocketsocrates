@@ -41,10 +41,10 @@ export const LoadingQuote = () => {
         </motion.div>
 
         <blockquote className="border-l-4 border-gold pl-6 py-4">
-          <p className="font-crimson text-2xl italic text-foreground mb-4">
+          <p className="font-fell text-2xl italic text-foreground mb-4 leading-relaxed">
             "{quote.text}"
           </p>
-          <footer className="text-lg text-bronze font-cinzel">
+          <footer className="text-lg text-bronze font-cinzel tracking-wider">
             — {quote.author}
           </footer>
         </blockquote>

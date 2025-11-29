@@ -6,6 +6,7 @@ import { Send, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { SystemInstructionsDialog } from "./SystemInstructionsDialog";
 
 interface Message {
   id: string;
@@ -17,12 +18,14 @@ interface Message {
 interface ChatAreaProps {
   chatId: string | null;
   chatName: string;
+  isAdminChat: boolean;
 }
 
-export const ChatArea = ({ chatId, chatName }: ChatAreaProps) => {
+export const ChatArea = ({ chatId, chatName, isAdminChat }: ChatAreaProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showInstructionsDialog, setShowInstructionsDialog] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,6 +91,14 @@ export const ChatArea = ({ chatId, chatName }: ChatAreaProps) => {
     if (!input.trim() || !chatId || isLoading) return;
 
     const userMessage = input.trim();
+    
+    // Check if admin is typing system instructions command
+    if (isAdminChat && (userMessage.toLowerCase() === "system instructions" || userMessage.toLowerCase() === "instructions")) {
+      setShowInstructionsDialog(true);
+      setInput("");
+      return;
+    }
+
     setInput("");
     setIsLoading(true);
 
@@ -107,13 +118,14 @@ export const ChatArea = ({ chatId, chatName }: ChatAreaProps) => {
         content: msg.content,
       }));
 
-      // Call OpenRouter via edge function
+      // Call edge function with chatId
       const { data, error } = await supabase.functions.invoke("chat", {
         body: {
           messages: [
             ...chatHistory,
             { role: "user", content: userMessage },
           ],
+          chatId: chatId,
         },
       });
 
@@ -166,7 +178,7 @@ export const ChatArea = ({ chatId, chatName }: ChatAreaProps) => {
             <h2 className="text-2xl font-cinzel font-bold text-card">
               {chatName}
             </h2>
-            <p className="text-sm text-gold/90 font-crimson italic">
+            <p className="text-lg font-fell text-gold/90 italic">
               A dialogue with Socrates
             </p>
           </div>
@@ -193,7 +205,7 @@ export const ChatArea = ({ chatId, chatName }: ChatAreaProps) => {
                     : "bg-card border-2 border-bronze/20 text-foreground"
                 }`}
               >
-                <p className="font-crimson text-lg leading-relaxed whitespace-pre-wrap">
+                <p className="font-fell text-lg leading-relaxed whitespace-pre-wrap">
                   {message.content}
                 </p>
               </div>
@@ -219,7 +231,7 @@ export const ChatArea = ({ chatId, chatName }: ChatAreaProps) => {
             onKeyPress={handleKeyPress}
             placeholder="Share your thoughts with Socrates..."
             disabled={isLoading}
-            className="flex-1 border-2 border-gold/30 focus:border-gold bg-background/50 font-crimson text-lg h-12"
+            className="flex-1 border-2 border-gold/30 focus:border-gold bg-background/50 font-fell text-lg h-12"
           />
           <Button
             onClick={handleSend}
@@ -233,10 +245,15 @@ export const ChatArea = ({ chatId, chatName }: ChatAreaProps) => {
             )}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground text-center mt-3 font-crimson italic">
+        <p className="text-xs text-muted-foreground text-center mt-3 font-fell italic">
           Press Enter to send • Shift+Enter for new line
         </p>
       </div>
+
+      <SystemInstructionsDialog
+        open={showInstructionsDialog}
+        onOpenChange={setShowInstructionsDialog}
+      />
     </div>
   );
 };

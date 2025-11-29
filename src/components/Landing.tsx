@@ -23,11 +23,15 @@ export const Landing = ({ onEnter }: LandingProps) => {
           <Sparkles className="w-16 h-16 text-gold" />
         </motion.div>
 
+        <p className="text-sm font-philosopher text-bronze/80 mb-2 tracking-widest uppercase">
+          Computer Science Exhibition 2025
+        </p>
+
         <h1 className="text-6xl md:text-7xl font-cinzel font-black text-bronze-dark mb-4 tracking-wider">
           PocketSocrates
         </h1>
 
-        <p className="text-xl md:text-2xl font-crimson text-bronze mb-12 italic leading-relaxed">
+        <p className="text-xl md:text-2xl font-fell text-bronze mb-12 italic leading-relaxed">
           Timeless philosophical advice for modern-day dilemmas
         </p>
 

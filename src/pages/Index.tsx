@@ -4,6 +4,7 @@ import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatArea } from "@/components/ChatArea";
 import { NewChatDialog } from "@/components/NewChatDialog";
 import { LoadingQuote } from "@/components/LoadingQuote";
+import { SettingsDialog } from "@/components/SettingsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -13,6 +14,7 @@ interface Chat {
   user_name: string | null;
   user_age: number | null;
   created_at: string;
+  is_admin: boolean;
 }
 
 const Index = () => {
@@ -22,6 +24,7 @@ const Index = () => {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
 
   useEffect(() => {
     if (!showLanding) {
@@ -90,29 +93,34 @@ const Index = () => {
     setShowLanding(false);
   };
 
-  const handleCreateChat = async (name: string, age: string) => {
+  const handleCreateChat = async (name: string, age: string, isAdmin: boolean) => {
     setIsLoading(true);
     setShowNewChatDialog(false);
 
     try {
-      const chatName = `${name} the Seeker`;
+      const chatName = isAdmin ? `Admin: ${name}` : `${name} the Seeker`;
       const { data, error } = await supabase
         .from("chats")
         .insert({
           name: chatName,
           user_name: name,
           user_age: parseInt(age),
+          is_admin: isAdmin,
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      // Add welcome message
+      // Add welcome message without mentioning age
+      const welcomeMessage = isAdmin
+        ? `Welcome, Administrator ${name}. I recognize your authority to shape our discourse. You possess the power to guide the nature of our philosophical inquiries through the system instructions. What matters of the mind and spirit shall we examine today?`
+        : `Welcome, ${name}. I am honored to engage in dialogue with you. In my time in Athens, I spoke with citizens from all walks of life. Each brought their own unique perspective shaped by their experiences. What questions arise from your living? What troubles your mind, or what truth do you seek? Let us pursue wisdom together through dialectic.`;
+
       await supabase.from("messages").insert({
         chat_id: data.id,
         role: "assistant",
-        content: `Welcome, ${name}. I am honored to engage in dialogue with someone ${age} years of age. You have accumulated experiences worthy of philosophical examination. In my time in Athens, I spoke with citizens of all ages - from young Plato to elder statesmen. Each brought their own unique perspective shaped by their years. What questions arise from your ${age} years of living? What troubles your mind, or what truth do you seek? Let us pursue wisdom together through dialectic.`,
+        content: welcomeMessage,
       });
 
       setChats((prev) => [data, ...prev]);
@@ -123,6 +131,31 @@ const Index = () => {
       toast.error("Failed to create chat");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteChat = async (chatId: string) => {
+    try {
+      // Delete messages first (foreign key constraint)
+      await supabase.from("messages").delete().eq("chat_id", chatId);
+      
+      // Then delete the chat
+      const { error } = await supabase.from("chats").delete().eq("id", chatId);
+
+      if (error) throw error;
+
+      setChats((prev) => prev.filter((chat) => chat.id !== chatId));
+      
+      // If deleting current chat, select another one
+      if (currentChatId === chatId) {
+        const remainingChats = chats.filter((chat) => chat.id !== chatId);
+        setCurrentChatId(remainingChats.length > 0 ? remainingChats[0].id : null);
+      }
+
+      toast.success("Dialogue deleted");
+    } catch (error) {
+      console.error("Error deleting chat:", error);
+      toast.error("Failed to delete dialogue");
     }
   };
 
@@ -144,11 +177,14 @@ const Index = () => {
           onSearchChange={setSearchQuery}
           onChatSelect={setCurrentChatId}
           onNewChat={() => setShowNewChatDialog(true)}
+          onDeleteChat={handleDeleteChat}
+          onSettingsClick={() => setShowSettingsDialog(true)}
         />
         
         <ChatArea
           chatId={currentChatId}
           chatName={currentChat?.name || ""}
+          isAdminChat={currentChat?.is_admin || false}
         />
       </div>
 
@@ -156,6 +192,11 @@ const Index = () => {
         open={showNewChatDialog}
         onOpenChange={setShowNewChatDialog}
         onCreateChat={handleCreateChat}
+      />
+
+      <SettingsDialog
+        open={showSettingsDialog}
+        onOpenChange={setShowSettingsDialog}
       />
     </>
   );

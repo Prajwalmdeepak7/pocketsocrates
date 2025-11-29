@@ -77,8 +77,9 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        cinzel: ['Cinzel', 'serif'],
-        crimson: ['Crimson Text', 'serif'],
+        cinzel: ['Cinzel Decorative', 'serif'],
+        philosopher: ['Philosopher', 'serif'],
+        fell: ['IM Fell DW Pica', 'serif'],
       },
       backgroundImage: {
         'gradient-gold': 'var(--gradient-gold)',
