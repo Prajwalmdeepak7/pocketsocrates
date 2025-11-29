@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_admin: boolean | null
           name: string
           updated_at: string
           user_age: number | null
@@ -26,6 +27,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_admin?: boolean | null
           name: string
           updated_at?: string
           user_age?: number | null
@@ -34,6 +36,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_admin?: boolean | null
           name?: string
           updated_at?: string
           user_age?: number | null
@@ -72,6 +75,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      system_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string | null
+          value: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string | null
+          value: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: string
+        }
+        Relationships: []
       }
     }
     Views: {
