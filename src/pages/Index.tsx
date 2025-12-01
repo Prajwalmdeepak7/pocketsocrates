@@ -5,16 +5,25 @@ import { ChatArea } from "@/components/ChatArea";
 import { NewChatDialog } from "@/components/NewChatDialog";
 import { LoadingQuote } from "@/components/LoadingQuote";
 import { SettingsDialog } from "@/components/SettingsDialog";
-import { supabase } from "@/integrations/supabase/client";
+import { AgeWarningDialog } from "@/components/AgeWarningDialog";
 import { toast } from "sonner";
+
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  created_at: string;
+}
 
 interface Chat {
   id: string;
   name: string;
-  user_name: string | null;
-  user_age: number | null;
+  user_name: string;
+  user_age: number;
   created_at: string;
   is_admin: boolean;
+  messages: Message[];
+  isDemo?: boolean;
 }
 
 const Index = () => {
@@ -25,106 +34,85 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewChatDialog, setShowNewChatDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [showAgeWarning, setShowAgeWarning] = useState(false);
+  const [warningAge, setWarningAge] = useState(0);
 
   useEffect(() => {
     if (!showLanding) {
-      loadChats();
+      initializeDemoChat();
     }
   }, [showLanding]);
 
-  const loadChats = async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from("chats")
-        .select("*")
-        .order("created_at", { ascending: false });
+  const initializeDemoChat = () => {
+    const demoChat: Chat = {
+      id: "demo",
+      name: "Demo",
+      user_name: "Visitor",
+      user_age: 25,
+      created_at: new Date().toISOString(),
+      is_admin: false,
+      isDemo: true,
+      messages: [
+        {
+          id: "demo-msg-1",
+          role: "assistant",
+          content:
+            "Greetings, friend. I am Socrates of Athens. For many years, I have wandered the agora, engaging fellow citizens in dialogue about virtue, wisdom, and the good life. Now, I find myself in this curious new realm. What questions weigh upon your mind? Let us examine them together, for as I always say: the unexamined life is not worth living.",
+          created_at: new Date().toISOString(),
+        },
+      ],
+    };
 
-      if (error) throw error;
-
-      setChats(data || []);
-
-      // If no chats exist, create Demo chat
-      if (!data || data.length === 0) {
-        await createDemoChat();
-      } else {
-        // Select the most recent chat
-        setCurrentChatId(data[0].id);
-      }
-    } catch (error) {
-      console.error("Error loading chats:", error);
-      toast.error("Failed to load chats");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const createDemoChat = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("chats")
-        .insert({
-          name: "Demo",
-          user_name: null,
-          user_age: null,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Add welcome message
-      await supabase.from("messages").insert({
-        chat_id: data.id,
-        role: "assistant",
-        content:
-          "Greetings, friend. I am Socrates of Athens. For many years, I have wandered the agora, engaging fellow citizens in dialogue about virtue, wisdom, and the good life. Now, I find myself in this curious new realm. What questions weigh upon your mind? Let us examine them together, for as I always say: the unexamined life is not worth living.",
-      });
-
-      setChats([data]);
-      setCurrentChatId(data.id);
-    } catch (error) {
-      console.error("Error creating demo chat:", error);
-      toast.error("Failed to create demo chat");
-    }
+    setChats([demoChat]);
+    setCurrentChatId("demo");
   };
 
   const handleEnter = () => {
     setShowLanding(false);
   };
 
+  const validateAge = (age: number): boolean => {
+    if (age < 0) {
+      setWarningAge(age);
+      setShowAgeWarning(true);
+      return false;
+    }
+    return true;
+  };
+
   const handleCreateChat = async (name: string, age: string, isAdmin: boolean) => {
+    const ageNum = parseInt(age);
+    
+    if (!validateAge(ageNum)) {
+      return;
+    }
+
     setIsLoading(true);
     setShowNewChatDialog(false);
 
     try {
       const chatName = isAdmin ? `Admin: ${name}` : `${name} the Seeker`;
-      const { data, error } = await supabase
-        .from("chats")
-        .insert({
-          name: chatName,
-          user_name: name,
-          user_age: parseInt(age),
-          is_admin: isAdmin,
-        })
-        .select()
-        .single();
+      const newChat: Chat = {
+        id: `chat-${Date.now()}`,
+        name: chatName,
+        user_name: name,
+        user_age: ageNum,
+        created_at: new Date().toISOString(),
+        is_admin: isAdmin,
+        messages: [
+          {
+            id: `msg-${Date.now()}`,
+            role: "assistant",
+            content: isAdmin
+              ? `Welcome, Administrator ${name}. I recognize your authority to shape our discourse. You possess the power to guide the nature of our philosophical inquiries through the system instructions. What matters of the mind and spirit shall we examine today?`
+              : `Welcome, ${name}. I am honored to engage in dialogue with you. In my time in Athens, I spoke with citizens from all walks of life. Each brought their own unique perspective shaped by their experiences. What questions arise from your living? What troubles your mind, or what truth do you seek? Let us pursue wisdom together through dialectic.`,
+            created_at: new Date().toISOString(),
+          },
+        ],
+      };
 
-      if (error) throw error;
-
-      // Add welcome message without mentioning age
-      const welcomeMessage = isAdmin
-        ? `Welcome, Administrator ${name}. I recognize your authority to shape our discourse. You possess the power to guide the nature of our philosophical inquiries through the system instructions. What matters of the mind and spirit shall we examine today?`
-        : `Welcome, ${name}. I am honored to engage in dialogue with you. In my time in Athens, I spoke with citizens from all walks of life. Each brought their own unique perspective shaped by their experiences. What questions arise from your living? What troubles your mind, or what truth do you seek? Let us pursue wisdom together through dialectic.`;
-
-      await supabase.from("messages").insert({
-        chat_id: data.id,
-        role: "assistant",
-        content: welcomeMessage,
-      });
-
-      setChats((prev) => [data, ...prev]);
-      setCurrentChatId(data.id);
+      setChats((prev) => [newChat, ...prev]);
+      setCurrentChatId(newChat.id);
       toast.success(`Chat "${chatName}" created`);
     } catch (error) {
       console.error("Error creating chat:", error);
@@ -134,29 +122,55 @@ const Index = () => {
     }
   };
 
-  const handleDeleteChat = async (chatId: string) => {
-    try {
-      // Delete messages first (foreign key constraint)
-      await supabase.from("messages").delete().eq("chat_id", chatId);
-      
-      // Then delete the chat
-      const { error } = await supabase.from("chats").delete().eq("id", chatId);
+  const handleDeleteChat = (chatId: string) => {
+    setChats((prev) => prev.filter((chat) => chat.id !== chatId));
 
-      if (error) throw error;
-
-      setChats((prev) => prev.filter((chat) => chat.id !== chatId));
-      
-      // If deleting current chat, select another one
-      if (currentChatId === chatId) {
-        const remainingChats = chats.filter((chat) => chat.id !== chatId);
-        setCurrentChatId(remainingChats.length > 0 ? remainingChats[0].id : null);
-      }
-
-      toast.success("Dialogue deleted");
-    } catch (error) {
-      console.error("Error deleting chat:", error);
-      toast.error("Failed to delete dialogue");
+    if (currentChatId === chatId) {
+      const remainingChats = chats.filter((chat) => chat.id !== chatId);
+      setCurrentChatId(remainingChats.length > 0 ? remainingChats[0].id : null);
     }
+
+    toast.success("Chat deleted");
+  };
+
+  const handleEditChat = (chatId: string, newName: string, newAge: number) => {
+    if (!validateAge(newAge)) {
+      return;
+    }
+
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.id === chatId
+          ? {
+              ...chat,
+              user_name: newName,
+              user_age: newAge,
+              name: chat.is_admin ? `Admin: ${newName}` : `${newName} the Seeker`,
+            }
+          : chat
+      )
+    );
+    toast.success("Chat details updated");
+  };
+
+  const handleNewMessage = (chatId: string, message: Message) => {
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.id === chatId
+          ? { ...chat, messages: [...chat.messages, message] }
+          : chat
+      )
+    );
+  };
+
+  const handleClearMessages = (chatId: string) => {
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.id === chatId
+          ? { ...chat, messages: [] }
+          : chat
+      )
+    );
   };
 
   const currentChat = chats.find((chat) => chat.id === currentChatId);
@@ -168,7 +182,7 @@ const Index = () => {
   return (
     <>
       {isLoading && <LoadingQuote />}
-      
+
       <div className="min-h-screen flex marble-texture">
         <ChatSidebar
           chats={chats}
@@ -178,13 +192,15 @@ const Index = () => {
           onChatSelect={setCurrentChatId}
           onNewChat={() => setShowNewChatDialog(true)}
           onDeleteChat={handleDeleteChat}
+          onEditChat={handleEditChat}
           onSettingsClick={() => setShowSettingsDialog(true)}
         />
-        
+
         <ChatArea
-          chatId={currentChatId}
-          chatName={currentChat?.name || ""}
-          isAdminChat={currentChat?.is_admin || false}
+          chat={currentChat || null}
+          onNewMessage={handleNewMessage}
+          onClearMessages={handleClearMessages}
+          onNewChat={() => setShowNewChatDialog(true)}
         />
       </div>
 
@@ -197,6 +213,12 @@ const Index = () => {
       <SettingsDialog
         open={showSettingsDialog}
         onOpenChange={setShowSettingsDialog}
+      />
+
+      <AgeWarningDialog
+        open={showAgeWarning}
+        onOpenChange={setShowAgeWarning}
+        age={warningAge}
       />
     </>
   );
