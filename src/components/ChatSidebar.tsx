@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search, MessageSquare, Trash2, Settings } from "lucide-react";
+import { Plus, Search, MessageSquare, Trash2, Settings, MoreVertical } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   AlertDialog,
@@ -14,15 +14,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { EditChatDialog } from "./EditChatDialog";
 
 interface ChatSidebarProps {
-  chats: Array<{ id: string; name: string; created_at: string }>;
+  chats: Array<{ 
+    id: string; 
+    name: string; 
+    created_at: string;
+    isDemo?: boolean;
+  }>;
   currentChatId: string | null;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onChatSelect: (chatId: string) => void;
   onNewChat: () => void;
   onDeleteChat: (chatId: string) => void;
+  onEditChat: (chatId: string, newName: string, newAge: number) => void;
   onSettingsClick: () => void;
 }
 
@@ -34,15 +47,31 @@ export const ChatSidebar = ({
   onChatSelect,
   onNewChat,
   onDeleteChat,
+  onEditChat,
   onSettingsClick,
 }: ChatSidebarProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [chatToDelete, setChatToDelete] = useState<string | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [chatToEdit, setChatToEdit] = useState<{ id: string; name: string; age: number } | null>(null);
 
   const handleDeleteClick = (chatId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    // Don't allow deleting demo chat
+    const chat = chats.find(c => c.id === chatId);
+    if (chat?.isDemo) return;
+    
     setChatToDelete(chatId);
     setDeleteDialogOpen(true);
+  };
+
+  const handleEditClick = (chat: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Don't allow editing demo chat
+    if (chat.isDemo) return;
+    
+    setChatToEdit({ id: chat.id, name: chat.user_name, age: chat.user_age });
+    setEditDialogOpen(true);
   };
 
   const confirmDelete = () => {
@@ -51,6 +80,14 @@ export const ChatSidebar = ({
       setChatToDelete(null);
     }
     setDeleteDialogOpen(false);
+  };
+
+  const handleEditSave = (name: string, age: number) => {
+    if (chatToEdit) {
+      onEditChat(chatToEdit.id, name, age);
+      setChatToEdit(null);
+    }
+    setEditDialogOpen(false);
   };
 
   const filteredChats = chats.filter((chat) =>
@@ -128,28 +165,50 @@ export const ChatSidebar = ({
                   >
                     {chat.name}
                   </h3>
-                  <p
-                    className={`text-xs font-fell ${
-                      currentChatId === chat.id
-                        ? "text-bronze-dark/70"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {new Date(chat.created_at).toLocaleDateString()}
-                  </p>
+                  {!chat.isDemo && (
+                    <p
+                      className={`text-xs font-fell ${
+                        currentChatId === chat.id
+                          ? "text-bronze-dark/70"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {new Date(chat.created_at).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => handleDeleteClick(chat.id, e)}
-                  className={`opacity-0 group-hover:opacity-100 transition-opacity ${
-                    currentChatId === chat.id
-                      ? "hover:bg-bronze-dark/10"
-                      : "hover:bg-gold/10"
-                  }`}
-                >
-                  <Trash2 className="w-4 h-4 text-destructive" />
-                </Button>
+                {!chat.isDemo && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+                          currentChatId === chat.id
+                            ? "hover:bg-bronze-dark/10"
+                            : "hover:bg-gold/10"
+                        }`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-card border-2 border-gold/20">
+                      <DropdownMenuItem onClick={(e) => handleEditClick(chat, e)} className="font-fell cursor-pointer">
+                        Edit details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(chat.id, e);
+                        }} 
+                        className="font-fell cursor-pointer text-destructive focus:text-destructive"
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             </motion.div>
           ))}
@@ -177,6 +236,16 @@ export const ChatSidebar = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {chatToEdit && (
+        <EditChatDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          currentName={chatToEdit.name}
+          currentAge={chatToEdit.age}
+          onSave={handleEditSave}
+        />
+      )}
     </>
   );
 };
