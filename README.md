@@ -1,73 +1,132 @@
-# Welcome to your Lovable project
+# PocketSocrates - Ancient Wisdom
 
-## Project info
+An immersive philosophical dialogue system that brings the wisdom of Socrates to the modern world.
 
-**URL**: https://lovable.dev/projects/d203e544-b58e-4f69-98a0-7c6f73e4c358
+## Overview
 
-## How can I edit this code?
+PocketSocrates is an innovative educational platform that leverages AI to engage users in Socratic dialogue, a teaching method based on asking and answering questions to stimulate critical thinking and illuminate ideas.
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+- **Socratic Dialogue**: Experience philosophical conversations that guide you through questioning
+- **Ancient Greek Interface**: A beautifully designed interface inspired by classical philosophy
+- **Interactive Learning**: Learn through dialogue, just as Socrates did in ancient Athens
+- **Timeless Wisdom**: Access philosophical insights that remain relevant to modern dilemmas
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/d203e544-b58e-4f69-98a0-7c6f73e4c358) and start prompting.
+## Project Info
 
-Changes made via Lovable will be committed automatically to this repo.
+**Author**: Prajwal MD, Class 12C
+**Exhibition**: Computer Science Exhibition 2025
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## Technologies Used
 
 This project is built with:
+- **Vite** - Fast build tool and development server
+- **React** - UI library
+- **TypeScript** - Type-safe JavaScript
+- **shadcn-ui** - UI component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Supabase** - Backend as a service
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Getting Started
 
-## How can I deploy this project?
+### Prerequisites
+- Node.js & npm (install with [nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
 
-Simply open [Lovable](https://lovable.dev/projects/d203e544-b58e-4f69-98a0-7c6f73e4c358) and click on Share -> Publish.
+### Installation
 
-## Can I connect a custom domain to my Lovable project?
+1. **Clone the repository**
+   ```bash
+   git clone <your-git-url>
+   cd pocketsocrates
+   ```
 
-Yes, you can!
+2. **Navigate to the project directory**
+   ```bash
+   cd pocketsocrates
+   ```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+3. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+## Build for Production
+
+```bash
+npm run build
+```
+
+## Development
+
+### Edit Code
+
+Choose your preferred method:
+
+**Option 1: Use your local IDE**
+- Clone the repository
+- Make changes locally
+- Push to GitHub to deploy
+
+**Option 2: Edit directly on GitHub**
+- Navigate to the desired file
+- Click the edit (pencil) button
+- Make changes and commit
+
+**Option 3: Use GitHub Codespaces**
+- Go to the repository main page
+- Click the "Code" button
+- Select "Codespaces" tab
+- Click "New codespace"
+- Edit and commit changes
+
+## Deployment
+
+This project is deployed on Vercel. Changes pushed to the main branch are automatically deployed.
+
+To deploy a new version:
+1. Push your changes to GitHub
+2. Vercel will automatically build and deploy
+
+## Custom Domain
+
+To connect a custom domain:
+1. Navigate to project settings
+2. Go to Domains section
+3. Click "Connect Domain"
+4. Follow the prompts to configure DNS
+
+## Project Structure
+
+```
+pocketsocrates/
+├── src/              # Source code
+├── public/           # Static assets
+├── supabase/         # Supabase configuration
+├── index.html        # Main HTML file
+├── package.json      # Project dependencies
+├── tailwind.config.ts # Tailwind CSS config
+├── tsconfig.json     # TypeScript config
+└── vite.config.ts    # Vite config
+```
+
+## Learn More
+
+- [Vite Documentation](https://vitejs.dev)
+- [React Documentation](https://react.dev)
+- [TypeScript Documentation](https://www.typescriptlang.org)
+- [Tailwind CSS Documentation](https://tailwindcss.com)
+- [Supabase Documentation](https://supabase.com/docs)
+
+## License
+
+This project was created for the Computer Science Exhibition 2025.
+
+## Contact
+
+For questions or suggestions, please reach out through the project repository.
